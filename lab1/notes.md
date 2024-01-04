@@ -6,4 +6,4 @@
 
 #### Summary
 - a little adding program
-- an even smaller program to compute the sum from 1 to 30
+- an even smaller program to compute the sum from 1 to 30 with LED display
