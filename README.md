@@ -13,4 +13,4 @@ Guys I **love** Assembly
 
 To be continued...
 
-xoxo syl <3
+xoxo <3 syl
