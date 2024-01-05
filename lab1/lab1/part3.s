@@ -1,7 +1,8 @@
 .global _start
 _start:
 
-/*Part III*/	
+/*Part III*/
+	.equ LEDs, 0xFF200000	
 		movi r12, 0 /*moves 0 into r12*/
 		movi r9, 1 /* moves 1 into r9*/
 		movi r8, 31 /*moves 30 into r8 */
@@ -12,9 +13,11 @@ _start:
 		beq r9, r8, done 
 		br loop
 	
-	done: br done
+	done: 
+		movia r25, LEDs
+		stwio r12, (r25)
+		br done
 	
-	.equ LEDs, 0xFF200000
-	movia r25, LEDs
-	stwio r12, (r25)
+	
+	
 	
