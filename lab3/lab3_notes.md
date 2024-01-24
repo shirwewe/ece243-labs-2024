@@ -7,7 +7,9 @@ Submit: parts 1 - 4
 Part 1: Counts the number of ones in binary number of a given 32 bit word
 Part 2: Make the Part 1 code into a subroutine
 Part 3: Calls the ONES subroutine twice in a loop
+    - use XOR operation to flip all the zeroes into ones and then use ones
 Part 4: Display Output on LEDs
+    - implented the software delay loop
 
 A note on stack pointer and subroutines
     - the subroutine is in charge of pushing registers onto the stack that it uses. it  will always return the registers to the previous values after using it. (only valid for registers r8-r15)
