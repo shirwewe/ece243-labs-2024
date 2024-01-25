@@ -4,7 +4,7 @@ and determines the largest of each */
 
 .global _start
 _start:
-	movia sp, 0x200000 # initializes the stack pointer
+	movia sp, 0x20000 # initializes the stack pointer
 	movia r8, TEST_NUM # r8 will store the address of the inputword
 	movia r9, LargestOnes # r9 will store the address of LargestOnes
 	movia r10, LargestZeroes # r10 will store the address of LargestZeroes
