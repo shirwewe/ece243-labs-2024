@@ -107,7 +107,7 @@ TIMER_END: ret
 
 .data
 TEST_NUM:  .word 0x4a01fead, 0xF677D671,0xDC9758D5,0xEBBD45D2,0x8059519D
-            .word 0x76D8F0D2, 0xB98C9BB5, 0xD7EC3A9E, 0xD9BADC01, 0x89B377CD, 0x00000001
+            .word 0x76D8F0D2, 0xB98C9BB5, 0xD7EC3A9E, 0xD9BADC01, 0x89B377CD
             .word 0  # end of list 
 
 LargestOnes: .word 0
