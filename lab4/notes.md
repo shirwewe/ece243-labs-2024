@@ -11,3 +11,9 @@ Calling convention review
 - r16 to r23 is taken care of by the callee (the subroutine)
 - r4 to r7 is used to pass to a subroutine
 - r2 to r3 is used to return results from the subroutine (if more than 2 result needs to be returned used the stack)
+
+Part 1:
+
+when I press key 0 -> data register bit 0 turns into 1 -> when key 0 is released -> data register bit 0 turns into 0
+
+I want to detect if key 0 is pressed and act accordingly until the key is released, then I'll poll again

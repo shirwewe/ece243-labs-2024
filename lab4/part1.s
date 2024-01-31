@@ -3,71 +3,80 @@ _start:
 
 .equ LED_BASE, 0xFF200000
 .equ KEY_BASE, 0xFF200050
-movia sp, 0x20000
 movia r8, LED_BASE
 movia r9, KEY_BASE
-movi r10, 0x1
-movi r11, 0x2
-movi r12, 0x4
-movi r13, 0x8
+movi r14, 1 # used to see if key 3 has been pressed
 
-MAIN_LOOP:
-	ldwio r4, (r9)
-	call POLL_KEY
-	br MAIN_LOOP
+
+
+POLL_ZERO:
+	ldwio r10, (r9) # r10 will store the data register contents
+	andi r10, r10, 1 # check if KEY0 is pressed
+	beq r10, r0, POLL_ONE
+	br KEY_ZERO
 	
-POLL_KEY:
-	subi sp, sp, 4
-	stw r16, (sp)
-	subi sp, sp, 4
-	stw r17, (sp)
-	subi sp, sp, 4
-	stw r18, (sp)
-	mov r16, r4
-	beq r16, r10, KEY_ZERO
-	beq r16, r11, KEY_ONE
-	beq r16, r12, KEY_TWO
-	beq r16, r13, KEY_THREE
-	br NEXT
+POLL_ONE:	
+	ldwio r10, (r9) # r10 will store the data register contents
+	andi r10, r10, 2 # check if KEY1 is pressed
+	beq r10, r0, POLL_TWO
+	br KEY_ONE
+	
+POLL_TWO:
+	ldwio r10, (r9) # r10 will store the data register contents
+	andi r10, r10, 4 # check if KEY2 is pressed
+	beq r10, r0, POLL_THREE
+	br KEY_TWO
+	
+POLL_THREE:
+	ldwio r10, (r9) # r10 will store the data register contents
+	andi r10, r10, 8 # check if KEY3 is pressed
+	beq r10, r0, POLL_ZERO
+	CALL KEY_THREE
+	br POLL_ZERO
 	
 KEY_ZERO: # stores 1 into LED
-	movi r2, 0
-	movi r17, 1
-	stwio r17, (r8)
-	br NEXT
-
-	
+	movi r12, 1 # r12 will store the current binary number
+	br STORE
+		
 KEY_ONE: # increments display number but dont go above 1111
-	beq r2, r10, KEY_ZERO
-	movi r18, 0xF
-	bge r17, r18, NEXT
-	addi r17, r17, 1
-	stwio r17, (r8)
-	br NEXT
+	beq r13, r14, 
+	KEY_ZERO
+	movi r11, 0xF
+	bge r12, r11, STORE
 	
-KEY_TWO:
-	beq r2, r10, KEY_ZERO
-	movi r18, 1
-	ble r17, r18, NEXT
-	subi r17, r17, 1
-	stwio r17, (r9)
-	br NEXT
+KEY_ONE_LOOP:
+	ldwio r10, (r9)
+	beq r10, r0, KEY_ONE_NEXT
+	br KEY_ONE_LOOP
+	
+KEY_ONE_NEXT:
+	addi r12, r12, 1
+	br STORE
 
-KEY_THREE:
-	beq r2, r10, KEY_ZERO
-	movi r17, 0
-	stwio r17, (r9)
-	movi r2, 1
-	br NEXT
+KEY_TWO: # decreases display number by 1 but don't go below 1
+	movi r11, 1
+	ble r12, r11, STORE
+	
+KEY_TWO_LOOP:
+	ldwio r10, (r9)
+	beq r10, r0, KEY_TWO_NEXT
+	br KEY_TWO_LOOP
+	
+KEY_TWO_NEXT:
+	subi r12, r12, 1
+	br STORE	
+	
+KEY_THREE: # resets to zero and any other button pressed after sets the counter to 1
+	movi r13, 1 # r13 will keep track of if KEY3 has been pressed or now
+	mov r12, r0
+	br STORE
 
-NEXT: 
-	ldw r18, (sp)
-	addi sp, sp, 4
-	ldw r17, (sp)
-	addi sp, sp, 4
-	ldw r16, (sp)
-	addi sp, sp, 4
+STORE:
+	stwio r12, (r8)
 	ret
+
+	
+	
 
 	
 	
