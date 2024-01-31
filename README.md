@@ -6,7 +6,7 @@ Guys I **love** Assembly
 - Lab 1: Introduction to Assembly Language Programming Using the Nios II Processor on the CPUlator Simulator and the DE1-SoC Hardware (Due January 15)
 - Lab 2: Accessing Memory, Loops, Conditional Branches Due (January 22)
 - Lab 3: Logic Instructions, Subroutines, and Memory Mapped Output (January 29)
-- Lab 4:
+- Lab 4: Memory Mapped I/O, Polling and Timers (February 5)
 - Lab 5:
 - Lab 6:
 - Lab 7:
