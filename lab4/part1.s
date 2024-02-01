@@ -38,8 +38,15 @@ POLL_THREE:
 KEY_ZERO: # stores 1 into LED
 	beq r13, r14, SET_ZERO
 	movi r12, 1 # r12 will store the current binary number
+	
+KEY_ZERO_LOOP:
+	ldwio r10, (r9)
+	beq r10, r0, KEY_ZERO_NEXT
+	br KEY_ZERO_LOOP
+	
+KEY_ZERO_NEXT:
 	br STORE
-		
+	
 KEY_ONE: # increments display number but dont go above 1111
 	beq r13, r14, SET_ZERO
 	movi r11, 0xF
