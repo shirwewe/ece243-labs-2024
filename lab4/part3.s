@@ -3,12 +3,25 @@ _start:
 	.equ COUNTER_DELAY, 500000
 	.equ LED_BASE, 0xFF200000
 	.equ KEY_BASE, 0xFF200050
+	.equ TIMER_BASE, 0xFF202000
 	movia sp, 0x20000
 	movia r8, LED_BASE
 	movia r9, KEY_BASE
+	movia r14, TIMER_BASE
 	movi r10, 0 # r10 has the counter number
 	movi r12, 0 # r12 is 1, counter is going; r12 is 0, counter is paused
 	movi r13, 0xFF # for resetting edge capture and comparing with 255
+
+CONFIG_TIMER:
+	stwio r0, (r14)
+	movia r15, COUNTER_DELAY
+	srli r16, r15, 16 # r16 has the higer 16 bits
+	andi r15, r15, 0xFFFF # r15 has the lower 16 bits
+	stwio r15, 0x8(r14)
+	stwio r16, 0xc(r14)
+	movi r15, 0b0110 # turns on start and cont of control register
+	stwio r15, 0x4(r14) # makes it actually happen
+
 
 POLL_KEY:
 	ldwio r11, 0xc(r9) # load the edge capture register into r11
@@ -40,17 +53,18 @@ RESET_ZERO:
 	mov r10, r0
 	br ADD_COUNT
 	
-DO_DELAY: 
+DO_DELAY:
 	subi sp, sp, 4
-	stw r16, (sp)
-	movia r16, COUNTER_DELAY
-	
-SUB_LOOP:
-	subi r16, r16, 1
-	bne r16, r0, SUB_LOOP
-	ldw r16, (sp)
+	stw r17, (sp)
+DELAY_LOOP:
+	ldwio r17, (r14)
+	andi r17, r17, 0b1
+	beq r17, r0, DELAY_LOOP #if the timer isnt 0 yet keep on going
+	stwio r0, (r14) # if the timer reaches 0, reset
+	ldw r17, (sp)
 	addi sp, sp, 4
 	ret
+
 
 
 
