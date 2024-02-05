@@ -1,6 +1,6 @@
 .global _start
 _start:
-	.equ COUNTER_DELAY, 500000
+	.equ COUNTER_DELAY, 250000000
 	.equ LED_BASE, 0xFF200000
 	.equ KEY_BASE, 0xFF200050
 	movia sp, 0x20000
@@ -42,13 +42,13 @@ RESET_ZERO:
 	
 DO_DELAY: 
 	subi sp, sp, 4
-	stw r16, (sp)
-	movia r16, COUNTER_DELAY
+	stw r4, (sp)
+	movia r4, COUNTER_DELAY
 	
 SUB_LOOP:
-	subi r16, r16, 1
-	bne r16, r0, SUB_LOOP
-	ldw r16, (sp)
+	subi r4, r4, 1
+	bne r4, r0, SUB_LOOP
+	ldw r4, (sp)
 	addi sp, sp, 4
 	ret
 
