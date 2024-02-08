@@ -1,6 +1,6 @@
 /* Program to Count the number of 1's in a 32-bit word,
 located at InputWord using a subroutine*/
-
+ 
 
 .global _start
 _start:
