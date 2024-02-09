@@ -26,8 +26,6 @@ END_ISR:
         ldw     r20, 8(sp)
         ldw     ea, 12(sp)
         addi    sp, sp, 16          # restore stack pointer
-		
-		subi ea, ea, 4 
 
         eret                        # return from exception
 
@@ -69,13 +67,13 @@ IDLE:   br  IDLE
 
 KEY_ISR: 
 	# stack everything from non-interrupt onto the stack
+	# ***************EDIT THIS FOR CLOBBERED REGISTERS ***************#
+	subi sp, sp, 16
+	stw r4, 0(sp)
+	stw r5, 4(sp)
+	stw r11, 8(sp)
+	stw r7, 12(sp)
 	
-	subi sp, sp, 12
-	stw r4, 16(sp)
-	stw r5, 20(sp)
-	stw r11, 24(sp)
-
-
 	movi r9, 4 # for checking key 2
 	movi r10, 8 # for checking key 3
 	ldwio r11, 0xc(r2) # check the edge capture register to see which button was pressed
@@ -126,6 +124,8 @@ KEY3:
 	br DISPLAY
 
 DISPLAY:
+
+	
 	subi sp, sp, 4
 	stw ra, (sp)
 	call HEX_DISP
@@ -134,10 +134,13 @@ DISPLAY:
 	movia r2, KEY_BASE
 	stwio r3, 0xc(r2) # to reset the edge cpature register
 	
-	ldw r11, 24(sp)
-	ldw r5, 20(sp)
-	ldw r4, 16(sp)
-	addi sp, sp, 12
+	# **** WE ARE ABOUT TO LEAVE THE INTERRUPT POP EVERYTHING OFF THE STACK ******
+	
+	ldw r7, 12(sp)
+	ldw r11, 8(sp)
+	ldw r5, 4(sp)
+	ldw r4, 0(sp)
+	addi sp, sp, 16
 	ret
 	
 # once again this subroutine does the following
