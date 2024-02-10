@@ -52,7 +52,7 @@ _start:
 	# set up keys to generate interrupts
 	movia r2, KEY_BASE
 	movi r3, 0xF
-	movi r4, 0x1 #also for checking key 0
+	movi r4, 0x1 # also for checking key 0
 	stwio r3, 0xC(r2) # clears the edge capture register of all keys
 	stwio r3, 8(r2) # turns on interrupt mask reg for keys
 	
@@ -68,11 +68,15 @@ IDLE:   br  IDLE
 KEY_ISR: 
 	# stack everything from non-interrupt onto the stack
 	# ***************EDIT THIS FOR CLOBBERED REGISTERS ***************#
-	subi sp, sp, 16
+	subi sp, sp, 32
 	stw r4, 0(sp)
 	stw r5, 4(sp)
-	stw r11, 8(sp)
+	stw r6, 8(sp)
 	stw r7, 12(sp)
+	stw r8, 16(sp)
+	stw r9, 20(sp)
+	stw r10, 24(sp)
+	stw r11, 28(sp)
 	
 	movi r9, 4 # for checking key 2
 	movi r10, 8 # for checking key 3
@@ -124,8 +128,6 @@ KEY3:
 	br DISPLAY
 
 DISPLAY:
-
-	
 	subi sp, sp, 4
 	stw ra, (sp)
 	call HEX_DISP
@@ -136,11 +138,15 @@ DISPLAY:
 	
 	# **** WE ARE ABOUT TO LEAVE THE INTERRUPT POP EVERYTHING OFF THE STACK ******
 	
+	ldw r11, 28(sp)
+	ldw r10, 24(sp)
+	ldw r9, 20(sp)
+	ldw r8, 16(sp)
 	ldw r7, 12(sp)
-	ldw r11, 8(sp)
+	ldw r6, 8(sp)
 	ldw r5, 4(sp)
 	ldw r4, 0(sp)
-	addi sp, sp, 16
+	addi sp, sp, 32
 	ret
 	
 # once again this subroutine does the following
