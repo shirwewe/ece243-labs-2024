@@ -66,7 +66,7 @@ _start:
 CONFIG_TIMER:
 	movia r2, TIMER_BASE
 	stwio r0, (r2)
-	movia r3, COUNTER_DELAY
+	movia r3, COUNTER_DELAY # r3 is used to store the counter delay
 	srli r4, r3, 16 # r16 has the higer 16 bits
 	andi r5, r3, 0xFFFF # r15 has the lower 16 bits
 	stwio r5, 0x8(r2)
@@ -78,9 +78,9 @@ CONFIG_TIMER:
 CONFIG_KEYS:
 	# set up keys to generate interrupts
 	movia r5, KEY_BASE
-	movi r3, 0xF
-	stwio r3, 0xC(r5) # clears the edge capture register of all keys
-	stwio r3, 8(r5) # turns on interrupt mask reg for keys
+	movi r4, 0xF
+	stwio r4, 0xC(r5) # clears the edge capture register of all keys
+	stwio r4, 8(r5) # turns on interrupt mask reg for keys
 	ret
 
 LOOP:
@@ -89,13 +89,28 @@ LOOP:
     br      LOOP
 
 KEY_ISR:
-	subi sp, sp, 16
-	stw r5, 0(sp)
-	stw r6, 4(sp)
-	stw r10, 8(sp)
-	stw r11, 12(sp)
-
+	subi sp, sp, 32
+	stw r4, 0(sp)
+	stw r5, 4(sp)
+	stw r6, 8(sp)
+	stw r8, 12(sp)
+	stw r9, 16(sp)
+	stw r10, 20(sp)
+	stw r11, 24(sp)
+	stw r3, 28, (sp)
+	
 	movia r5, KEY_BASE
+	
+	movi r8, 1
+	movi r9, 2
+	movi r10, 4
+	ldwio r11, 0xc(r5) # check the edge capture register to see which button was pressed
+	andi r11, r11, 0xF # isolate the key
+	beq r11, r8, KEY0 # key 0 did it
+	beq r11, r9, KEY1 # key 1 did it
+	beq r11, r10, KEY2 # key 2 did it
+	
+KEY0:
 	movia r10, RUN # ALSO GLOBAL
 	ldw r11, (r10) # check RUN
 	beq r11, r0, START_TIMER # if run is currently 0 we will start it again
@@ -106,14 +121,72 @@ KEY_ISR:
 	stwio r6, 0x4(r2) # stop the timer
 	stwio r0, (r2)
 	movia r5, KEY_BASE
-	stwio r3, 0xC(r5) # reset edge capture register
+	movi r4, 0xF
+	stwio r4, 0xC(r5) # reset edge capture register
 	
-	ldw r11, 12(sp)
-	ldw r10, 8(sp)
-	ldw r6, 4(sp)
-	ldw r5, 0(sp)
-	addi sp, sp, 16
+	ldw r3, 28(sp)
+	ldw r11, 24(sp)
+	ldw r10, 20(sp)
+	ldw r9, 16(sp)
+	ldw r8, 12(sp)
+	ldw r6, 8(sp)
+	ldw r5, 4(sp)
+	ldw r4, 0(sp)
+	addi sp, sp, 32
 	ret # otherwise no adding occurs
+	
+KEY1:
+	movia r2, TIMER_BASE
+	movia r3, COUNTER_DELAY # r3 is used to store the counter delay
+	slli r3, r3, 1
+	srli r4, r3, 16 # r16 has the higer 16 bits
+	andi r5, r3, 0xFFFF # r15 has the lower 16 bits
+	stwio r5, 0x8(r2)
+	stwio r4, 0xc(r2)
+	movi r4, 0b0111
+	stwio r4, 0x4(r2)
+	
+	movia r5, KEY_BASE
+	movi r4, 0xF
+	stwio r4, 0xC(r5) # reset edge capture register
+	
+	
+	ldw r3, 28(sp)
+	ldw r11, 24(sp)
+	ldw r10, 20(sp)
+	ldw r9, 16(sp)
+	ldw r8, 12(sp)
+	ldw r6, 8(sp)
+	ldw r5, 4(sp)
+	ldw r4, 0(sp)
+	addi sp, sp, 32
+	ret
+	
+KEY2:
+	movia r2, TIMER_BASE
+	movia r3, COUNTER_DELAY # r3 is used to store the counter delay
+	srli r3, r3, 1
+	srli r4, r3, 16 # r16 has the higer 16 bits
+	andi r5, r3, 0xFFFF # r15 has the lower 16 bits
+	stwio r5, 0x8(r2)
+	stwio r4, 0xc(r2)
+	movi r4, 0b0111
+	stwio r4, 0x4(r2)
+	
+	movia r5, KEY_BASE
+	movi r4, 0xF
+	stwio r4, 0xC(r5) # reset edge capture register
+	
+	ldw r3, 28(sp)
+	ldw r11, 24(sp)
+	ldw r10, 20(sp)
+	ldw r9, 16(sp)
+	ldw r8, 12(sp)
+	ldw r6, 8(sp)
+	ldw r5, 4(sp)
+	ldw r4, 0(sp)
+	addi sp, sp, 32
+	ret
 	
 START_TIMER:
 	stw r4, (r10) # makes the RUN variable 1 meaning its now running
@@ -123,19 +196,27 @@ START_TIMER:
 	movia r5, KEY_BASE
 	stwio r3, 0xC(r5) # reset edge capture register'
 	
-	ldw r11, 12(sp)
-	ldw r10, 8(sp)
-	ldw r6, 4(sp)
-	ldw r5, 0(sp)
-	addi sp, sp, 16
+	ldw r3, 28(sp)
+	ldw r11, 24(sp)
+	ldw r10, 20(sp)
+	ldw r9, 16(sp)
+	ldw r8, 12(sp)
+	ldw r6, 8(sp)
+	ldw r5, 4(sp)
+	ldw r4, 0(sp)
+	addi sp, sp, 32
 	ret
 	
 TIMER_ISR:
-	subi sp, sp, 16
-	stw r5, 0(sp)
-	stw r6, 4(sp)
-	stw r10, 8(sp)
-	stw r11, 12(sp)
+	subi sp, sp, 32
+	stw r4, 0(sp)
+	stw r5, 4(sp)
+	stw r6, 8(sp)
+	stw r8, 12(sp)
+	stw r9, 16(sp)
+	stw r10, 20(sp)
+	stw r11, 24(sp)
+	stw r3, 28, (sp)
 	movia r2, TIMER_BASE
 	stwio r0, (r2) # resets the interrupt bit
 	
@@ -145,11 +226,15 @@ TIMER_ISR:
 	ldw ra, (sp)
 	addi sp, sp, 4
 	
-	ldw r11, 12(sp)
-	ldw r10, 8(sp)
-	ldw r6, 4(sp)
-	ldw r5, 0(sp)
-	addi sp, sp, 16
+	ldw r3, 28(sp)
+	ldw r11, 24(sp)
+	ldw r10, 20(sp)
+	ldw r9, 16(sp)
+	ldw r8, 12(sp)
+	ldw r6, 8(sp)
+	ldw r5, 4(sp)
+	ldw r4, 0(sp)
+	addi sp, sp, 32
 	ret
 	
 ADD_COUNT:

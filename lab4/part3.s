@@ -28,7 +28,7 @@ POLL_KEY:
 	andi r11, r11, 15
 	beq r11, r0, CHECK_ADD_LOOP # edge capture register is 0, no key is pressed
 	# otherwise a button is pressed
-	bne r12, r0, RESET_EDGE_CAPTURE #if the counter is going, we need to stop the counter now
+	bne r12, r0, RESET_EDGE_CAPTURE # if the counter is going, we need to stop the counter now
 	br ADD_COUNT
 
 RESET_EDGE_CAPTURE:
@@ -44,7 +44,7 @@ ADD_COUNT:
 	bge r10, r13, RESET_ZERO
 	stwio r13, 0xC(r9)
 	movi r12, 1 # indicates that the counter has started
-	addi r10, r10, 1 #increases the counter
+	addi r10, r10, 1 # increases the counter
 	call DO_DELAY
 	stwio r10, (r8)
 	br POLL_KEY
@@ -60,7 +60,7 @@ DO_DELAY:
 DELAY_LOOP:
 	ldwio r17, (r14)
 	andi r17, r17, 0b1
-	beq r17, r0, DELAY_LOOP #if the timer isnt 0 yet keep on going
+	beq r17, r0, DELAY_LOOP # if the timer isnt 0 yet keep on going
 	stwio r0, (r14) # if the timer reaches 0, reset
 	ldw r17, (sp)
 	addi sp, sp, 4
