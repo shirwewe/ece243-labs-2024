@@ -37,7 +37,6 @@ END_ISR:
 .equ LED_BASE, 0xff200000
 .equ TIMER_BASE, 0xff202000
 .equ KEY_BASE, 0xff200050
-.equ COUNTER_DELAY, 5000000
 
 .text
 .global  _start
@@ -66,7 +65,8 @@ _start:
 CONFIG_TIMER:
 	movia r2, TIMER_BASE
 	stwio r0, (r2)
-	movia r3, COUNTER_DELAY # r3 is used to store the counter delay
+	movia r6, COUNTER_DELAY # r3 is used to store the counter delay
+	ldw r3, (r6)
 	srli r4, r3, 16 # r16 has the higer 16 bits
 	andi r5, r3, 0xFFFF # r15 has the lower 16 bits
 	stwio r5, 0x8(r2)
@@ -137,8 +137,10 @@ KEY0:
 	
 KEY1:
 	movia r2, TIMER_BASE
-	movia r3, COUNTER_DELAY # r3 is used to store the counter delay
+	movia r6, COUNTER_DELAY # r3 is used to store the counter delay
+	ldw r3, (r6)
 	slli r3, r3, 1
+	stw r3, (r6)
 	srli r4, r3, 16 # r16 has the higer 16 bits
 	andi r5, r3, 0xFFFF # r15 has the lower 16 bits
 	stwio r5, 0x8(r2)
@@ -164,8 +166,11 @@ KEY1:
 	
 KEY2:
 	movia r2, TIMER_BASE
-	movia r3, COUNTER_DELAY # r3 is used to store the counter delay
+	movia r6, COUNTER_DELAY # r3 is used to store the counter delay
+	ldw r3, (r6)
 	srli r3, r3, 1
+	stw r3, (r6)
+	
 	srli r4, r3, 16 # r16 has the higer 16 bits
 	andi r5, r3, 0xFFFF # r15 has the lower 16 bits
 	stwio r5, 0x8(r2)
@@ -251,5 +256,9 @@ COUNT:  .word    0x0            # used by timer
 
 .global  RUN                    # used by pushbutton KEYs
 RUN:    .word    0x1            # initial value to increment COUNT
+
+.global COUNTER_DELAY
+
+COUNTER_DELAY: 	.word  5000000
 
 .end
