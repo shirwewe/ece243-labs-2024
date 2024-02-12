@@ -11,6 +11,9 @@
 .equ HEX_BASE2, 0xff200030
 .equ SW_BASE, 0xff200040
 
+.global _start
+_start:
+
 # modified the code so that SW0-3 loads the 4 bit into r4, SW4 resets the HEX, SW5-7 tells us which hex to display on
 POLL_SW:
 	movia r9, SW_BASE
