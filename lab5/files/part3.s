@@ -37,7 +37,7 @@ END_ISR:
 .equ LED_BASE, 0xff200000
 .equ TIMER_BASE, 0xff202000
 .equ KEY_BASE, 0xff200050
-.equ COUNTER_DELAY, 5000000
+.equ COUNTER_DELAY, 250000000
 
 .text
 .global  _start

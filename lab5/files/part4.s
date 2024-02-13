@@ -252,13 +252,13 @@ ADD_COUNT:
 .data
 /* Global variables */
 .global  COUNT
-COUNT:  .word    0x0            # used by timer
+COUNT:  .word    0x0            # used by timer 
 
 .global  RUN                    # used by pushbutton KEYs
 RUN:    .word    0x1            # initial value to increment COUNT
 
 .global COUNTER_DELAY
 
-COUNTER_DELAY: 	.word  5000000
+COUNTER_DELAY: 	.word  250000000
 
 .end
