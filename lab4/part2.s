@@ -1,6 +1,6 @@
 .global _start
 _start:
-	.equ COUNTER_DELAY, 250000000
+	.equ COUNTER_DELAY, 25000000
 	.equ LED_BASE, 0xFF200000
 	.equ KEY_BASE, 0xFF200050
 	movia sp, 0x20000

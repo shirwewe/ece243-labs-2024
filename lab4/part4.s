@@ -1,6 +1,6 @@
 .global _start
 _start:
-	.equ COUNTER_DELAY, 250000000
+	.equ COUNTER_DELAY, 10000000
 	.equ LED_BASE, 0xFF200000
 	.equ KEY_BASE, 0xFF200050
 	.equ TIMER_BASE, 0xFF202000
@@ -72,7 +72,7 @@ RESET_COUNTER:
 DO_DELAY:
 	subi sp, sp, 4
 	stw r17, (sp)
-	
+
 DELAY_LOOP:
 	ldwio r17, (r14)
 	andi r17, r17, 0b1
