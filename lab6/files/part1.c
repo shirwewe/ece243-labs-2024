@@ -1,8 +1,6 @@
 // this is a program that turns on all the LEDs when KEY0 is pressed and turns all the LEDs off when KEY1 is pressed
 
 #include <stdlib.h>
-#include <address_map_nios2.h>
-
 
 int main()
 {
@@ -26,4 +24,3 @@ int main()
 		}
     }
 }
-
