@@ -1,30 +1,33 @@
-
-// Sampled at 8Khz, mono, 32b int per sample
-
-
-int samples[];
-
+#include <stdio.h>
+#include <stdlib.h>
+	
 int samples_n =  240000; // audio will run for 30s
 
-
-void square_wave_gen(int *samples, int frequency){
-	float fund_period = 1 / frequency;
-	float sample_per_period = fund_period / 0.000125;
-	for (int i = 0; i < sample_per_period; i++){
-		if(i > sample_per_period / 2){
+void square_wave_gen(int *samples, double frequency){
+	int low = 1;
+	int multiplier = 1;
+	double fund_period = 1 / frequency;
+	double sample_per_period = fund_period / 0.000125;
+	for (int i = 0; i < samples_n; i++){
+		if(i < multiplier * sample_per_period/2 && low){
 			samples[i] = 0;
 		}
-		samples[i] = 0xFFFFF000;
+		else if (i == multiplier * sample_per_period/2 && low){
+			multiplier++;
+			low = 0;
+			samples[i] = 0xFFFFF000;
+		}
+		else if (i == multiplier * sample_per_period/2 && !(low)){
+			multiplier++;
+			low = 1;
+			samples[i] = 0;
+		}
+		else{
+			samples[i] = 0xFFFFF000;
+		}
+	
 	}
 }
-
-void square_wave_gen_30(int frequency){
-	for (int i = 0; i < samples_n / 80; i++){
-		square_wave_gen(samples, frequency);
-	}
-	return 0;
-}
-
 
 struct audio_t {
 	volatile unsigned int control;
@@ -50,12 +53,56 @@ void play_audio(int *samples, int n) {
             audiop->rdata = samples[i];
         }
     }
-}	
+}
 
 
-int main(void) {
-	square_wave_gen_30(100);
-  	play_audio(samples, samples_n);
-  	while (1);
+int main(){
+    // Write C code here
+	int samples_n = 240000; // audio will run for 30s
+	int* samples; 
+	samples = (int*)calloc(samples_n, sizeof(int));
+	
+	
+	volatile int *SW_ptr = 0xFF200040;
+	
+	while (1){
+		int SW_value = *SW_ptr;
+		switch(SW_value){
+			case 0b1:
+				square_wave_gen(samples, 100);
+				break;
+			case 0b10:
+				square_wave_gen(samples, 300);
+				 break;
+			case 0b100:
+				square_wave_gen(samples, 500);
+				break;
+			case 0b1000:
+				square_wave_gen(samples, 700);
+				break;
+			case 0b10000:
+				square_wave_gen(samples, 900);
+				break;
+			case 0b100000:
+				square_wave_gen(samples, 1100);
+				break;
+			case 0b1000000:
+				square_wave_gen(samples, 1300);
+				break;
+			case 0b10000000:
+				square_wave_gen(samples, 1500);
+				break;
+			case 0b100000000:
+				square_wave_gen(samples, 1700);
+				break;
+			case 0b1000000000:
+				square_wave_gen(samples, 2000);
+				break;
+			default:
+				square_wave_gen(samples, 0);
+		}
+		play_audio(samples,samples_n);
+	}
+ 
 }
 
