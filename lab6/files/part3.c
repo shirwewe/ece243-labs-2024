@@ -18,12 +18,6 @@ void square_wave_gen(int *samples, int frequency){
 	}
 }
 
-void square_wave_gen_30(int frequency){
-	for (int i = 0; i < samples_n / 80; i++){
-		square_wave_gen(samples, frequency);
-	}
-	return 0;
-}
 
 
 struct audio_t {

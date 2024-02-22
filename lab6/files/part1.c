@@ -1,26 +1,107 @@
-// this is a program that turns on all the LEDs when KEY0 is pressed and turns all the LEDs off when KEY1 is pressed
-
+#include <stdio.h>
 #include <stdlib.h>
+	
+int samples_n =  240000; // audio will run for 30s
 
-int main()
-{
-    volatile int *LEDR_ptr = 0xFF200000;
-    volatile int *KEY_ptr = 0xFF200050;
-
-
-    while (1){
-        int edgecapture_bit = *(KEY_ptr + 3) & 0b11;
-		// if key0 is pressed
-        if (edgecapture_bit == 1){ 
-			*(LEDR_ptr) = 0x3FF;
-			*(KEY_ptr + 3) = 0xFF;
+void square_wave_gen(int *samples, double frequency){
+	int low = 1;
+	int multiplier = 1;
+	double fund_period = 1 / frequency;
+	double sample_per_period = fund_period / 0.000125;
+	for (int i = 0; i < samples_n; i++){
+		if(i < multiplier * sample_per_period/2 && low){
+			samples[i] = 0;
 		}
-		if (edgecapture_bit == 2){
-			*(LEDR_ptr) = 0;
-			*(KEY_ptr + 3) = 0xFF;
+		else if (i == multiplier * sample_per_period/2 && low){
+			multiplier++;
+			low = 0;
+			samples[i] = 0xFFFFF000;
+		}
+		else if (i == multiplier * sample_per_period/2 && !(low)){
+			multiplier++;
+			low = 1;
+			samples[i] = 0;
 		}
 		else{
-			continue;
+			samples[i] = 0xFFFFF000;
 		}
+	
+	}
+}
+
+struct audio_t {
+	volatile unsigned int control;
+	volatile unsigned char rarc;
+	volatile unsigned char ralc;
+	volatile unsigned char warc;
+	volatile unsigned char walc;
+    volatile unsigned int ldata;
+	volatile unsigned int rdata;
+};
+
+struct audio_t *const audiop = ((struct audio_t *)0xff203040);
+
+
+void play_audio(int *samples, int n) {
+    int i;
+    audiop->control = 0x8; // clear the output FIFOs
+    audiop->control = 0x0; // resume input conversion
+    for (i = 0; i < n; i++) {
+        // output data if there is space in the output FIFOs
+        if (audiop->warc) {
+            audiop->ldata = samples[i];
+            audiop->rdata = samples[i];
+        }
     }
+}
+
+
+int main(){
+    // Write C code here
+	int samples_n = 240000; // audio will run for 30s
+	int* samples; 
+	samples = (int*)calloc(samples_n, sizeof(int));
+	
+	
+	volatile int *SW_ptr = 0xFF200040;
+	
+	while (1){
+		int SW_value = *SW_ptr;
+		switch(SW_value){
+			case 0b1:
+				square_wave_gen(samples, 100);
+				break;
+			case 0b10:
+				square_wave_gen(samples, 300);
+				 break;
+			case 0b100:
+				square_wave_gen(samples, 500);
+				break;
+			case 0b1000:
+				square_wave_gen(samples, 700);
+				break;
+			case 0b10000:
+				square_wave_gen(samples, 900);
+				break;
+			case 0b100000:
+				square_wave_gen(samples, 1100);
+				break;
+			case 0b1000000:
+				square_wave_gen(samples, 1300);
+				break;
+			case 0b10000000:
+				square_wave_gen(samples, 1500);
+				break;
+			case 0b100000000:
+				square_wave_gen(samples, 1700);
+				break;
+			case 0b1000000000:
+				square_wave_gen(samples, 2000);
+				break;
+			default:
+				square_wave_gen(samples, 0);
+		}
+		play_audio(samples,samples_n);
+	}
+ 
 }
