@@ -2,9 +2,6 @@
 #include <stdlib.h>
 
 
-
-
-
 int samples_n =  240000; // audio will run for 30s
 void square_wave_gen(int *samples, double frequency){
 int low = 1;
@@ -18,7 +15,7 @@ for (int i = 0; i < samples_n; i++){
 	else if (i == multiplier * sample_per_period/2 && low){
 		multiplier++;
 		low = 0;
-		samples[i] = 0xFFFFF000;
+		samples[i] = 1;
 	}
 	else if (i == multiplier * sample_per_period/2 && !(low)){
 		multiplier++;
@@ -26,17 +23,11 @@ for (int i = 0; i < samples_n; i++){
 		samples[i] = 0;
 	}
 	else{
-		samples[i] = 0xFFFFF000;
+		samples[i] = 1;
 	}
 	
 	}
 }
-
-
-// int samples[];
-
-
-// int samples_n =  240000; // audio will run for 30s
 
 
 // void square_wave_gen(int *samples, double frequency){
@@ -56,7 +47,7 @@ int main(){
 	int samples_n =  240000; // audio will run for 30s
 	int* samples; 
 	samples = (int*)calloc(240000, sizeof(int));
-	square_wave_gen(samples, 100);
+	square_wave_gen(samples, 120);
     for (int i = 0; i < 1000; i++){
         printf("%d", samples[i]);
     }
