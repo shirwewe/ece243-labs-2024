@@ -30,7 +30,6 @@ void square_wave_gen(int *samples, double frequency){
 	}
 }
 
-
 struct audio_t {
 	volatile unsigned int control;
 	volatile unsigned char rarc;
