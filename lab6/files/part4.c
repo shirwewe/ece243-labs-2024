@@ -97,6 +97,8 @@ struct audio_t *const audiop = ((struct audio_t *) AUDIO_BASE);
 int left_buffer[BUF_SIZE];
 int right_buffer[BUF_SIZE];
 
+int buffer_index, sound_length;
+
 struct audio_t {
 	volatile unsigned int control;  // The control/status register
 	volatile unsigned char rarc;	// the 8 bit RARC register
@@ -109,7 +111,6 @@ struct audio_t {
 
 
 void audio_record(void) {        
-	int buffer_index;
 	audiop->control = 0x4; // clear the input FIFOs
 	audiop->control = 0x0; // resume input conversion
 	buffer_index = 0;
@@ -121,19 +122,20 @@ void audio_record(void) {
 			++buffer_index;
 		}
 	}
-	int sound_length = buffer_index;
+	sound_length = buffer_index;
 }
 
 void generate_echo(){
     int buffer_index;
-	for (int n = 0; n < 100; n += 20){
+	//for (int n = 20; n < 100; n += 20){
 		while (buffer_index < BUF_SIZE) { 
-			// read samples if there are any in the input FIFOs
-			left_buffer[buffer_index]  = left_buffer[buffer_index] * (1 - n /100);
-			right_buffer[buffer_index]  = right_buffer[buffer_index] * (1 - n /100); 
+			// copy what was in buffer_index original and put another copy right after it, make it quieter
+			left_buffer[buffer_index]  = left_buffer[buffer_index - sound_length] * (1 - 50 /100);
+			right_buffer[buffer_index]  = right_buffer[buffer_index - sound_length] * (1 - 50 /100); 
 			buffer_index++;
 		}
-	}
+		
+	//}
 }
 
 void audio_playback(void){
@@ -151,8 +153,8 @@ void audio_playback(void){
 }
 
 void delay(){
-	for(int i = 0; i < 100000; i++){
-		for (int n = 0; n < 100000; n++){}
+	for(int i = 0; i < 100000000; i++){
+		for (int n = 0; n < 100000000; n++){}
 	}
 	return ;
 }
@@ -170,10 +172,11 @@ int main(void) {
         {
             // load both input microphone channels - just get one sample from each
             audio_record();
-			delay();
-
+			generate_echo();
             // store both of those samples to output channels
 			audio_playback();
+			delay();
+
         }
     }
 }
