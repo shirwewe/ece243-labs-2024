@@ -151,6 +151,10 @@ void audio_playback(void){
 }
 
 void delay(){
+	for(int i = 0; i < 100000; i++){
+		for (int n = 0; n < 100000; n++){}
+	}
+	return ;
 }
 
 
@@ -173,4 +177,3 @@ int main(void) {
         }
     }
 }
-
