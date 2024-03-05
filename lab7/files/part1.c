@@ -53,11 +53,72 @@ void clear_screen(void);
 void plot_pixel(int, int, short int);
 void draw_line(int, int, int, int, int);
 
+void clear_screen(){
+	for (int x = 0; x < 320; x++){
+		for(int y = 0; y < 240; y++){
+			plot_pixel(x, y, 0);
+		}
+	}
+}
+
+
+void draw_line(int x0, int y0, int x1, int y1, int colour){
+	int temp, y_step;
+	int is_steep = ABS(y1 - y0) > ABS(x1 - x0);
+	if(is_steep){
+		temp = x0;
+		x0 = y0;
+		y0 = temp;
+	
+		temp = x1;
+		x1 = y1;
+		y1 = temp;
+	}
+	
+	if(x0 > x1){
+		temp = x0;
+		x0 = x1;
+		x1 = temp;
+		
+		temp = y0;
+		y0 = y1;
+		y1 = temp;
+	}
+	
+	int delta_x = x1 - x0;
+	int delta_y = ABS(y1 - y0);
+	int error = -(delta_x/2);
+	int y = y0;
+	
+	if (y < y1){
+		y_step = 1;
+	}
+	
+	else{
+		y_step = -1;
+	}
+	
+	for (int x = x0; x < x1; x++){
+		if (is_steep){
+			plot_pixel(y, x, colour);
+		}
+		else{
+			plot_pixel(x, y, colour);	
+		}
+		error = error + delta_y;
+		if(error > 0){
+			y = y + y_step;
+			error = error - delta_x;
+		}
+	}	
+}
+
+
+
 int main(void)
 {
 
-    volatile int * pixel_ctrl_ptr =
-        (int *)PIXEL_BUF_CTRL_BASE; // pixel controller
+    volatile int * pixel_ctrl_ptr = (int *)PIXEL_BUF_CTRL_BASE; // pixel controller
 
     /* Read location of the pixel buffer from the pixel buffer controller */
     pixel_buffer_start = *pixel_ctrl_ptr;
