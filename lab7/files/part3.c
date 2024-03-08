@@ -55,6 +55,7 @@ void draw_box(int, int, int, int, short int);
 void plot_pixel(int, int, short int);
 void draw_line(int, int, int, int, int);
 void wait_for_vsync(void);
+void erase_line(int, int, int, int)
 
 /******************************************************************************
  * This program draws rectangles and boxes on the VGA screen, and moves them
@@ -87,7 +88,6 @@ int main(void)
     while (1)
     {
         /* Erase any boxes and lines that were drawn in the last iteration */
-        ...
         // code for drawing the boxes and lines (not shown)
         // code for updating the locations of boxes (not shown)
 
@@ -98,10 +98,131 @@ int main(void)
 
 // code for subroutines (not shown)
 
+void clear_screen(){
+	for (int x = 0; x < 320; x++){
+		for(int y = 0; y < 240; y++){
+			plot_pixel(x, y, 0);
+		}
+	}
+}
+
 void plot_pixel(int x, int y, short int color)
 {
 	int shift_x, shift_y;
 	shift_x = sizeof_pixel - 1;					// shift x address bits by sizeof(pixel)
 	shift_y = video_n + (sizeof_pixel - 1);	// shift y address by |x address| + sizeof(pixel)
 	*(short int *)(pixel_buffer_start + (y << shift_y) + (x << shift_x)) = color;
+}
+
+void draw_line(int x0, int y0, int x1, int y1, int colour){
+	int temp, y_step;
+	int is_steep = ABS(y1 - y0) > ABS(x1 - x0);
+	if(is_steep){
+		temp = x0;
+		x0 = y0;
+		y0 = temp;
+	
+		temp = x1;
+		x1 = y1;
+		y1 = temp;
+	}
+	
+	if(x0 > x1){
+		temp = x0;
+		x0 = x1;
+		x1 = temp;
+		
+		temp = y0;
+		y0 = y1;
+		y1 = temp;
+	}
+	
+	int delta_x = x1 - x0;
+	int delta_y = ABS(y1 - y0);
+	int error = -(delta_x/2);
+	int y = y0;
+	
+	if (y < y1){
+		y_step = 1;
+	}
+	
+	else{
+		y_step = -1;
+	}
+	
+	for (int x = x0; x < x1; x++){
+		if (is_steep){
+			plot_pixel(y, x, colour);
+		}
+		else{
+			plot_pixel(x, y, colour);	
+		}
+		error = error + delta_y;
+		if(error > 0){
+			y = y + y_step;
+			error = error - delta_x;
+		}
+	}	
+}
+
+void erase_line(int x0, int y0, int x1, int y1){
+	int temp, y_step;
+	int is_steep = ABS(y1 - y0) > ABS(x1 - x0);
+	if(is_steep){
+		temp = x0;
+		x0 = y0;
+		y0 = temp;
+	
+		temp = x1;
+		x1 = y1;
+		y1 = temp;
+	}
+	
+	if(x0 > x1){
+		temp = x0;
+		x0 = x1;
+		x1 = temp;
+		
+		temp = y0;
+		y0 = y1;
+		y1 = temp;
+	}
+	
+	int delta_x = x1 - x0;
+	int delta_y = ABS(y1 - y0);
+	int error = -(delta_x/2);
+	int y = y0;
+	
+	if (y < y1){
+		y_step = 1;
+	}
+	
+	else{
+		y_step = -1;
+	}
+	
+	for (int x = x0; x < x1; x++){
+		if (is_steep){
+			plot_pixel(y, x, 0);
+		}
+		else{
+			plot_pixel(x, y, 0);	
+		}
+		error = error + delta_y;
+		if(error > 0){
+			y = y + y_step;
+			error = error - delta_x;
+		}
+	}	
+}
+
+void wait_for_vsync(){
+	volatile int *pixel_ctrl_ptr = (int*)PIXEL_BUF_CTRL_BASE;
+	int status;
+	*pixel_ctrl_ptr = 1; // this will start the sync process, write 1 into the front buf
+	status = *(pixel_ctrl_ptr + 3);
+	
+	while((status & 0x01) != 0){ // polling the status bit, the status bit will turn to 0 when front buffer is done rendering
+		status = *(pixel_ctrl_ptr + 3);
+	}
 }
