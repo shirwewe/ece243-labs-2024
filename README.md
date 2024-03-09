@@ -9,8 +9,8 @@ Guys I **love** Assembly
 - Lab 4: Memory Mapped I/O, Polling and Timers (February 5)
 - Lab 5: Hex Displays and Interrupt-Driven Input/Output (February 12)
 - Lab 6: Coding in C and Audio Input and Output (February 26)
-- Lab 7: Introduction to Graphics and Animation (March 11, 2024)
+- Lab 7: Introduction to Graphics and Animation (March 11)
 
-Lab in progress: lab all DONE!
+Lab in progress: lab all DONE (as of March 9)
 
 xoxo <3 syl
