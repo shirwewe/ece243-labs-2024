@@ -64,7 +64,6 @@ void wait_for_vsync(){
 	}
 }
 
-
 void clear_screen(){
 	for (int x = 0; x < 320; x++){
 		for(int y = 0; y < 240; y++){
@@ -72,7 +71,6 @@ void clear_screen(){
 		}
 	}
 }
-
 
 void draw_line(int x0, int y0, int x1, int y1, int colour){
 	int temp, y_step;
@@ -176,15 +174,10 @@ void erase_line(int x0, int y0, int x1, int y1){
 	}	
 }
 
-
-
 void plot_pixel(int x, int y, short int line_color)
 {
     *(volatile short int *)(pixel_buffer_start + (y<<10) + (x<<1)) = line_color;
 }
-
-
-
 
 int main(void)
 {

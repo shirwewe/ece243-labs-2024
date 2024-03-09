@@ -41,6 +41,7 @@ int resolution_x, resolution_y; 							// VGA screen size
 int sizeof_pixel;						// number of bytes per pixel
 int video_m, video_n;				// number of bits in VGA y coord (m), x coord (n)
 int x_box[NUM_BOXES], y_box[NUM_BOXES]; 	// x, y coordinates of boxes to draw
+int old_x_box[NUM_BOXES], old_y_box[NUM_BOXES];
 int dx_box[NUM_BOXES], dy_box[NUM_BOXES]; // amount to move boxes in animation
 int color_box[NUM_BOXES];						// color
 unsigned int color[] = {WHITE, YELLOW, RED, GREEN, BLUE, CYAN, MAGENTA, GREY, PINK, ORANGE};
@@ -88,19 +89,48 @@ int main(void)
     /* set a location for the back pixel buffer in the pixel buffer controller
         */
     *(pixel_ctrl_ptr + 1) = (int) &Buffer2;
-    pixel_buffer_start    = *(pixel_ctrl_ptr + 1); // we draw on the back buffer
+    pixel_buffer_start = *(pixel_ctrl_ptr + 1); // we draw on the back buffer
     clear_screen();
 
     while (1)
     {
         /* Erase any boxes and lines that were drawn in the last iteration */
+		// for(i = 0; i < NUM_BOXES; i++){
+		// 	erase_box(old_x_box[i], old_y_box[i]);
+		// 	erase_line(old_x_box[i], old_y_box[i], old_x_box[(i+1) % NUM_BOXES], old_y_box[(i+1) % NUM_BOXES]);
+		// }
+		clear_screen();
         // code for drawing the boxes and lines (not shown)
-        // code for updating the locations of boxes (not shown)
-		for(int i = 0; i < NUM_BOXES; i++){
+		for(i = 0; i < NUM_BOXES; i++){
 			draw_box(x_box[i], y_box[i], color_box[i]);
+			draw_line(x_box[i], y_box[i], x_box[(i+1) % NUM_BOXES], y_box[(i+1) % NUM_BOXES], color_box[i]);
+			old_x_box[i] = x_box[i]; 
+			old_y_box[i] = y_box[i]; 
 		}
+
+		// code for updating the locations of boxes (not shown)
+		for (i = 0; i < NUM_BOXES; i++){ // updating the next animation location for each box
+			x_box[i] = x_box[i] + dx_box[i];
+			y_box[i] = y_box[i] + dy_box[i];
+
+			// conditions for boucning off the side of boxes
+			if(x_box[i] > 318){
+				dx_box[i] = -1;
+			}
+			if(y_box[i] > 238){
+				dy_box[i] = -1;
+			}
+			if(x_box[i] < 0){
+				dx_box[i] = 1;
+			}
+			if(y_box[i] < 0){
+				dy_box[i] = 1;
+			}
+		}
+
         wait_for_vsync(); // swap front and back buffers on VGA vertical sync
         pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
+
     }
 }
 
@@ -112,6 +142,8 @@ void initializer(){
 		color_box[i] = color[rand() % 10];
 		dx_box[i] = ((rand() % 2) * 2) - 1; // this will give either -1 or + 1, and tells x direction movement (left or right)
 		dy_box[i] = ((rand() % 2) * 2) - 1; // this will give either -1 or + 1, and tells y direction movement (up or down)
+		old_x_box[i] = 0;
+		old_y_box[i] = 0;
 	}
 }
 
@@ -243,6 +275,14 @@ void draw_box(int x0, int y0, short int colour){
 	plot_pixel(x0 + 1, y0, colour);
 	plot_pixel(x0, y0 + 1, colour);
 	plot_pixel(x0 + 1, y0 + 1, colour);
+
+}
+
+void erase_box(int x0, int y0){
+	plot_pixel(x0, y0, 0);
+	plot_pixel(x0 + 1, y0, 0);
+	plot_pixel(x0, y0 + 1, 0);
+	plot_pixel(x0 + 1, y0 + 1, 0);
 
 }
 
