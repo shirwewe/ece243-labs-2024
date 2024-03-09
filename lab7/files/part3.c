@@ -60,6 +60,7 @@ void draw_line(int, int, int, int, int);
 void wait_for_vsync(void);
 void erase_line(int, int, int, int);
 void initializer();
+void erase_box(int, int);
 
 
 /******************************************************************************
