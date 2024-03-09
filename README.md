@@ -11,6 +11,6 @@ Guys I **love** Assembly
 - Lab 6: Coding in C and Audio Input and Output (February 26)
 - Lab 7: Introduction to Graphics and Animation (March 11)
 
-Lab in progress: lab all DONE (as of March 9)
+Lab in progress: Labs all DONE (as of March 9)
 
 xoxo <3 syl
