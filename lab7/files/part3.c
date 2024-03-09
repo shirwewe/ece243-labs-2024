@@ -51,11 +51,13 @@ short int Buffer2[240][512];
 
 void get_screen_specs(void);
 void clear_screen(void);
-void draw_box(int, int, int, int, short int);
+void draw_box(int, int, short int);
 void plot_pixel(int, int, short int);
 void draw_line(int, int, int, int, int);
 void wait_for_vsync(void);
-void erase_line(int, int, int, int)
+void erase_line(int, int, int, int);
+void initializer();
+
 
 /******************************************************************************
  * This program draws rectangles and boxes on the VGA screen, and moves them
@@ -67,16 +69,20 @@ int main(void)
     volatile int * pixel_ctrl_ptr = (int *) PIXEL_BUF_CTRL_BASE; // pixel controller
 
     // declare other variables(not shown)
-    // initialize location and direction of rectangles(not shown)
+	sizeof_pixel = 2; 
+	video_m = 8; // y has 8 bits
+	video_n = 9; // x has 9 bits
 
+    // initialize location and direction of rectangles(not shown)
+	initializer();
     /* initialize the location of the front pixel buffer in the pixel buffer controller */
-    *(pixel_ctrl_ptr + 1) = (int) &Buffer1; // first store the address in the back buffer
+    *(pixel_ctrl_ptr + 1) = (int) &Buffer1; // first store the address in the back buffer back buffer has the address of BUFFER1
     /* now, swap the front and back buffers, to initialize front pixel buffer location */
     wait_for_vsync();
     /* initialize a pointer to the pixel buffer, used by drawing functions */
     pixel_buffer_start = *pixel_ctrl_ptr;
     /* Erase the pixel buffer */
-    get_screen_specs(); // determine Y, Y screen size
+    get_screen_specs(); // determine X, Y screen size
     clear_screen();
 
     /* set a location for the back pixel buffer in the pixel buffer controller
@@ -90,20 +96,36 @@ int main(void)
         /* Erase any boxes and lines that were drawn in the last iteration */
         // code for drawing the boxes and lines (not shown)
         // code for updating the locations of boxes (not shown)
-
+		for(int i = 0; i < NUM_BOXES; i++){
+			draw_box(x_box[i], y_box[i], color_box[i]);
+		}
         wait_for_vsync(); // swap front and back buffers on VGA vertical sync
         pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
     }
 }
 
 // code for subroutines (not shown)
+void initializer(){
+	for (int i = 0; i < NUM_BOXES; i++){
+		x_box[i] = rand() % (RESOLUTION_X - 1); // generates a random # from 0 to 318 for x
+		y_box[i] = rand() % (RESOLUTION_Y - 1); // random # from 0 to 238;
+		color_box[i] = color[rand() % 10];
+		dx_box[i] = ((rand() % 2) * 2) - 1; // this will give either -1 or + 1, and tells x direction movement (left or right)
+		dy_box[i] = ((rand() % 2) * 2) - 1; // this will give either -1 or + 1, and tells y direction movement (up or down)
+	}
+}
 
 void clear_screen(){
-	for (int x = 0; x < 320; x++){
-		for(int y = 0; y < 240; y++){
+	for (int x = 0; x < resolution_x; x++){
+		for(int y = 0; y < resolution_y; y++){
 			plot_pixel(x, y, 0);
 		}
 	}
+}
+
+void get_screen_specs(){
+	resolution_x = RESOLUTION_X;
+	resolution_y = RESOLUTION_Y;
 }
 
 void plot_pixel(int x, int y, short int color)
@@ -214,6 +236,14 @@ void erase_line(int x0, int y0, int x1, int y1){
 			error = error - delta_x;
 		}
 	}	
+}
+
+void draw_box(int x0, int y0, short int colour){
+	plot_pixel(x0, y0, colour);
+	plot_pixel(x0 + 1, y0, colour);
+	plot_pixel(x0, y0 + 1, colour);
+	plot_pixel(x0 + 1, y0 + 1, colour);
+
 }
 
 void wait_for_vsync(){
