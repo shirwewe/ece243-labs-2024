@@ -41,7 +41,9 @@ int resolution_x, resolution_y; 							// VGA screen size
 int sizeof_pixel;						// number of bytes per pixel
 int video_m, video_n;				// number of bits in VGA y coord (m), x coord (n)
 int x_box[NUM_BOXES], y_box[NUM_BOXES]; 	// x, y coordinates of boxes to draw
-int old_x_box[NUM_BOXES], old_y_box[NUM_BOXES];
+int very_old_box_x[NUM_BOXES], very_old_box_y[NUM_BOXES];
+int old_box_x[NUM_BOXES], old_box_y[NUM_BOXES];
+
 int dx_box[NUM_BOXES], dy_box[NUM_BOXES]; // amount to move boxes in animation
 int color_box[NUM_BOXES];						// color
 unsigned int color[] = {WHITE, YELLOW, RED, GREEN, BLUE, CYAN, MAGENTA, GREY, PINK, ORANGE};
@@ -95,17 +97,24 @@ int main(void)
     while (1)
     {
         /* Erase any boxes and lines that were drawn in the last iteration */
-		// for(i = 0; i < NUM_BOXES; i++){
-		// 	erase_box(old_x_box[i], old_y_box[i]);
-		// 	erase_line(old_x_box[i], old_y_box[i], old_x_box[(i+1) % NUM_BOXES], old_y_box[(i+1) % NUM_BOXES]);
-		// }
-		clear_screen();
+		
+		for(i = 0; i < NUM_BOXES; i++){
+			erase_box(very_old_box_x[i], very_old_box_y[i]);
+			erase_line(very_old_box_x[i], very_old_box_y[i], very_old_box_x[(i+1) % NUM_BOXES], very_old_box_y[(i+1) % NUM_BOXES]);
+		}
+		
+		// clear_screen();
         // code for drawing the boxes and lines (not shown)
 		for(i = 0; i < NUM_BOXES; i++){
 			draw_box(x_box[i], y_box[i], color_box[i]);
 			draw_line(x_box[i], y_box[i], x_box[(i+1) % NUM_BOXES], y_box[(i+1) % NUM_BOXES], color_box[i]);
-			old_x_box[i] = x_box[i]; 
-			old_y_box[i] = y_box[i]; 
+			
+			very_old_box_x[i] = old_box_x[i];
+			very_old_box_y[i] = old_box_y[i];
+
+			old_box_x[i] = x_box[i];
+			old_box_y[i] = y_box[i];
+			
 		}
 
 		// code for updating the locations of boxes (not shown)
@@ -131,6 +140,8 @@ int main(void)
         wait_for_vsync(); // swap front and back buffers on VGA vertical sync
         pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
 
+		
+		
     }
 }
 
@@ -142,8 +153,10 @@ void initializer(){
 		color_box[i] = color[rand() % 10];
 		dx_box[i] = ((rand() % 2) * 2) - 1; // this will give either -1 or + 1, and tells x direction movement (left or right)
 		dy_box[i] = ((rand() % 2) * 2) - 1; // this will give either -1 or + 1, and tells y direction movement (up or down)
-		old_x_box[i] = 0;
-		old_y_box[i] = 0;
+		very_old_box_x[i] = 0;
+		very_old_box_y[i] = 0;
+		old_box_x[i] = 0;
+		old_box_y[i] = 0;
 	}
 }
 
